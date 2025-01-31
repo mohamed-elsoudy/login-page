@@ -1,4 +1,5 @@
 let loggedUser;
+totalprice = 0;
 let data = [
     {
         title: "Magic coat",
@@ -25,26 +26,39 @@ let data = [
         imgSrc: './imgs/product4.jpeg'
     }
 ];
-let users = [
-    {
-        id: 1,
-        user: "mohamed",
-        password: "987123",
-        cartItems: ["Magic coat", "Driving suit"],
-        isLogged: true
-    }
-]
-window.localStorage.setItem("users", JSON.stringify(users))
-if (window.localStorage.getItem("users")) {
-    JSON.parse(window.localStorage.getItem("users")).forEach(element => {
-        if(element.isLogged == true) {
-            loggedUser = element;
-        }
-    });
-    if (loggedUser) {
+let users = JSON.parse(window.localStorage.getItem("users"));
+let cuurentUser = JSON.parse(window.localStorage.getItem("users")).filter(el => {
+    return el.isLogged == true;
+})[0];
+
+if(!cuurentUser) {
+    window.location.replace("./login.html")
+} else {
+    
+    users.forEach(element => {
+    if(element.isLogged == true) {
+        loggedUser = element;
         writeCartPage(loggedUser.cartItems);
     }
-}
+});
+
+document.querySelectorAll(".btn").forEach((btn) => {
+    btn.onclick = () => {
+        loggedUser.cartItems = loggedUser.cartItems.filter((item) => {
+            return item != btn.getAttribute("data-title");
+        })
+        users.forEach(u => {
+            if(u.id == loggedUser.id) {
+                u.cartItems = loggedUser.cartItems;
+            }
+        })
+        window.localStorage.setItem("users", JSON.stringify(users))
+        btn.parentElement.parentElement.remove();
+        calcPrice(-btn.getAttribute("data-price"));
+    }
+})
+
+
 function writeCartPage(userItems) {
     document.getElementsByClassName("products")[0].innerHTML = "";
     let thisItemData;
@@ -54,30 +68,40 @@ function writeCartPage(userItems) {
                 thisItemData = el;
             }
         });
-
         document.getElementsByClassName("products")[0].innerHTML =`
         ${document.getElementsByClassName("products")[0].innerHTML}
-        <div class="product d-flex">
-            <img src="${thisItemData.imgSrc}" width="150px" class="rounded" alt="">
-            <div class="details">
-                <span class="title d-block fs-2 d-block pb-4 mb-4">${thisItemData.title}</span>
+        <div class="product row">
+            <div class="col-12 col-xl-4 text-align-right">
+                <img src="${thisItemData.imgSrc}" class="rounded" width="200px" alt="">
+            </div>
+            <div class="details ps-4 d-flex flex-column justify-content-between col-3">
+                <span class="title d-block fs-2 d-block">${thisItemData.title}</span>
                 <div class="amount pt-4 d-flex">
-                    <span class="rounded-circle p-3 text-bg-secondary">+</span>
-                    <span class="fs-2"> 1</span>
-                    <span class="rounded-circle p-3 text-bg-secondary">-</span>
+                <span class="rounded-circle p-3 text-bg-secondary" title="Not Allowed Yet">+</span>
+                <span class="fs-2"> 1</span>
+                    <span class="rounded-circle p-3 text-bg-secondary" title="Not Allowed Yet">-</span>
+                </div>
+                <div class="price fs-2 mt-3 d-flex align-items-end">
+                    ${thisItemData.price}$
                 </div>
             </div>
-            <div class="price fs-2 d-flex align-items-end">
-                ${thisItemData.price}$
-            </div>
-            <div class="price fs-2 d-flex align-items-end ms-4">
-                <button class="btn btn-danger">
+            <div class="price fs-2 col-12 col-xl-3 mt-4 mt-lg-0 d-flex align-items-end">
+                <button class="btn btn-danger" data-title="${thisItemData.title}" data-price="${thisItemData.price}">
                     Remove item
-                </button>
-            </div>
+                    </button>
+                    </div>
             </div>
         </div>
             `
+            calcPrice(thisItemData.price);
 
     })
+}
+}
+
+function calcPrice(addedPrice) {
+    totalprice+= addedPrice;
+    document.querySelector(".price-span").innerHTML = "price : " + totalprice;
+    document.querySelector(".delv-span").innerHTML = "Delivery Service : " + (totalprice > 0 ? 50 : 0);
+    document.querySelector(".total-span").innerHTML = `total price is :  ${totalprice + (totalprice > 0 ? 50 : 0)}`;
 }
