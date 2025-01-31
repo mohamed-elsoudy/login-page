@@ -52,26 +52,27 @@ if (!loggedUser) {
     // goToTheHomePage(loggedUser);
     submitInput.onclick = function(e) {
         e.preventDefault();
-        if (users != []) {
+  
             users.forEach((user) => {
-                if(user.user == emailInput && user.password == passwordInput) {
-                    goToTheHomePage();
+                if(true) {
                     user.isLogged = true;
-                    localStorage.setItem(users);
+                    localStorage.setItem("users", JSON.stringify(users));
+                    goToTheHomePage();
+                    console.log(33);
+                    
                 }})    
-        }
 
-        if(emailInput.value !== "" && passwordInput.value.length > 5) {
-                users.push({
-                    id: 2,
-                    user: emailInput.value,
-                    password: passwordInput.value,
-                    cartItems: [],
-                    isLogged: true
-                })
-                window.localStorage.setItem("users", JSON.stringify(users));
-                goToTheHomePage();
-            }
+        // if(emailInput.value !== "" && passwordInput.value.length > 5) {
+        //         users.push({
+        //             id: 2,
+        //             user: emailInput.value,
+        //             password: passwordInput.value,
+        //             cartItems: [],
+        //             isLogged: true
+        //         })
+        //         window.localStorage.setItem("users", JSON.stringify(users));
+        //         goToTheHomePage();
+        //     }
     }
 }
 
